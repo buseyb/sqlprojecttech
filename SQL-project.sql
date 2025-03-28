@@ -55,7 +55,25 @@ select top 1 p.ProductName, sum(od.Quantity) 'Toplam Sipariş Adedi' from [Order
  select * from UrunlerveKategorileri
 
 --11)Ürün silindiğinde log tablosuna kayıt yapan bir trigger yazınız.
+create table ProductDeleteLogRec(
+LogID int identity(1,1) primary Key,
+ProductID int,
+ProductName nvarchar(150),
+DeletedDate Datetime default getdate(),
+Deletedby nvarchar(100));
 
+create trigger TriggerProductDelete 
+on products after delete
+as 
+begin
+insert into ProductDeleteLogRec(ProductID,ProductName,DeletedDate,Deletedby)
+select ProductID, ProductName,GETDATE(),USER_NAME()
+from deleted 
+end;
+
+insert into Products (ProductName) values ('deneme');
+delete from [Products Above Average Price] where ProductName='deneme';
+select* from ProductDeleteLogRec
 --12)Belirli bir ülkeye ait müşterileri listeleyen bir stored procedure yazınız.
 
  create procedure UlkelereGoreMusteri
